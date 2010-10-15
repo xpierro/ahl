@@ -32,7 +32,8 @@ public:
 	Socket(string host, short port);
 	virtual ~Socket();
 	int connectToHost();
-	void readDataLine(char* buffer, int bufferLength);
+	int readDataLine(char*, int);
+	int writeDataChunk(char*, int);
 
 	static void initSocket();
 	static void closeSocket();
