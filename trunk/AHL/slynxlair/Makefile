@@ -12,7 +12,9 @@ GFX_COMMON=Common
 PPU_INCDIRS		+= -Iinclude -I$(CELL_SDK)/samples/sdk/graphics/psgl/Common/
 PPU_CPPFLAGS		+= -DPSGL
 PPU_CXXSTDFLAGS		+= -fno-exceptions
-PPU_SRCS		:= main.cpp png.cpp \
+PPU_SRCS		:= main.cpp src/png.cpp \
+					$(CELL_SDK)/samples/sdk/graphics/psgl/Common/gfxObject.cpp \
+					$(CELL_SDK)/samples/sdk/graphics/psgl/Common/gfxCommon.cpp \
 
 PPU_TARGET		:= hello_world.elf
 PPU_LDLIBS		:= -lpngdec_stub -lsysmodule_stub $(GRAPHICS_SAMPLE_CORE_LIBS)

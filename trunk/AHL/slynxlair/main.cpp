@@ -1,9 +1,9 @@
 #include <sys/process.h>
 #include <sys/spu_initialize.h>
 #include <PSGL/psglu.h>
-#include "Common/gfxCommon.h"
-#include "Common/gfxObject.h"
-#include "png.h"
+#include <gfxCommon.h>
+#include <gfxObject.h>
+#include "src/png.h"
 
 #define DEFAULT_VIEW_DIST  -5.f
 #define NEAR_CLIP	0.1f
