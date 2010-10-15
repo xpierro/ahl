@@ -1,5 +1,6 @@
 #include <cell/codec/pngdec.h>
 #include <stdlib.h>
+#include <PSGL/psgl.h>
 
 /*cbCtrlMallocArg*/
 typedef struct PngMallocArg{
@@ -13,5 +14,5 @@ typedef struct PngFreeArg{
 
 static void *pngMalloc(uint32_t size, void *cbCtrlMallocArg);
 static int32_t pngFree(void *ptr, void *cbCtrlFreeArg);
-void pngDecode(char *path);
+GLuint pngDecode(GLuint width, GLuint height, char *path);
 void pngDestroy(void);
