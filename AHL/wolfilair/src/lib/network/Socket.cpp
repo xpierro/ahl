@@ -63,9 +63,9 @@ void Socket::readDataLine(char* buffer, int bufferLength) {
 	buffer[i] = '\0';
 }
 
-/*void Socket::writeDataChunk(char* chunk, int chunkSize) {
-
-}*/
+void Socket::writeDataChunk(char* chunk, int chunkSize) {
+	send(sock, chunk, chunkSize, MSG_DONTWAIT);
+}
 
 void Socket::closeSocket() {
 	sys_net_finalize_network();
