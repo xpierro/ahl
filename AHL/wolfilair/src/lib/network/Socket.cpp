@@ -48,7 +48,7 @@ void Socket::initSocket() {
 }
 
 //!\ Blocking, use select or threading in the future.
-void Socket::readDataLine(char* buffer, int bufferLength) {
+int Socket::readDataLine(char* buffer, int bufferLength) {
 	char c = '\0';
 	int i = 0;
 	int byteReceived = 1;
@@ -61,10 +61,11 @@ void Socket::readDataLine(char* buffer, int bufferLength) {
 		}
 	}
 	buffer[i] = '\0';
+	return i;
 }
 
-void Socket::writeDataChunk(char* chunk, int chunkSize) {
-	send(sock, chunk, chunkSize, MSG_DONTWAIT);
+int Socket::writeDataChunk(char* chunk, int chunkSize) {
+	return send(sock, chunk, chunkSize, MSG_DONTWAIT);
 }
 
 void Socket::closeSocket() {
