@@ -14,9 +14,11 @@
 namespace PS3 {
 
 bool Socket::netInitialized = false;
+list<Socket*>* Socket::sockets = new list<Socket*>();
 
 Socket::Socket(string host, short port) {
-	initSocket();
+	initSockets();
+	sockets->push_back(this);
 	struct hostent *h = gethostbyname(host.c_str());
 	memset(&addr, 0, sizeof(addr));
 	((struct sockaddr_in*)&addr)->sin_family = AF_INET;
@@ -26,19 +28,17 @@ Socket::Socket(string host, short port) {
 	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 }
 
-Socket::~Socket() {
-	// TODO Auto-generated destructor stub
-}
+Socket::~Socket() { }
 
 static void netCallback(uint64_t status, uint64_t params, void* userdata) {
 	(void) params;
 	(void) userdata;
 	if (status == CELL_SYSUTIL_REQUEST_EXITGAME) {
-		Socket::closeSocket();
+		Socket::closeSockets();
 	}
 }
 
-void Socket::initSocket() {
+void Socket::initSockets() {
 	if (!netInitialized) {
 		cellSysmoduleLoadModule(CELL_SYSMODULE_NET);
 		sys_net_initialize_network();
@@ -68,12 +68,20 @@ int Socket::writeDataChunk(char* chunk, int chunkSize) {
 	return send(sock, chunk, chunkSize, MSG_DONTWAIT);
 }
 
-void Socket::closeSocket() {
+void Socket::closeSockets() {
+	list<Socket*>::iterator it = sockets->begin();
+	while(it != sockets->end()) {
+		(*it)->close();
+	}
 	sys_net_finalize_network();
 }
 
 int Socket::connectToHost() {
 	return connect(sock, &addr, sizeof(struct sockaddr_in));
+}
+
+int Socket::close() {
+	return socketclose(sock);
 }
 
 }
