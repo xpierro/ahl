@@ -16,6 +16,8 @@ using namespace PS3;
 
 float pos[] = { -1,-1,0,  -1,1,0,  1,-1,0,  1,1,0, };
 
+float squareVertices[] = {0, 0, 0, 0.5, 0, 0, 0.5, 0.5, 0, 0, 0.5, 0};
+
 void drawAxisAlignedLine(float cntrX, float cntrY, float halfWidth, float halfHeight)
 {
   glPushMatrix();
@@ -122,6 +124,13 @@ int loop() {
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+
+	glDisable(GL_CULL_FACE);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(3, GL_FLOAT, 0, squareVertices);
+	glColor4f(0.2f,0.3f,0.4f,1);
+	glDrawArrays(GL_QUADS, 0, 4);
+	glDisableClientState(GL_VERTEX_ARRAY);
 
 	psglSwap();
 	// Evite le blocage normalement de "quitter le jeu" en mode multitache.

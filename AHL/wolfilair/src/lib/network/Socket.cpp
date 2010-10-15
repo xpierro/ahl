@@ -72,6 +72,7 @@ void Socket::closeSockets() {
 	list<Socket*>::iterator it = sockets->begin();
 	while(it != sockets->end()) {
 		(*it)->close();
+		++it;
 	}
 	sys_net_finalize_network();
 }
