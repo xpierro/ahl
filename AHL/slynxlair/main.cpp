@@ -1,25 +1,43 @@
 #include <sys/process.h>
+#include <sys/paths.h>
 #include <sys/spu_initialize.h>
 #include <PSGL/psglu.h>
 #include <gfxCommon.h>
 #include <gfxObject.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "src/png.h"
 
-#define DEFAULT_VIEW_DIST  -5.f
-#define NEAR_CLIP	0.1f
-#define FAR_CLIP	8500.1f
-#define FOV_Y		40.0f
+float bgCoord[] = { -2.0, -1.5, 0.0,
+					-2.0,  0.0, 0.0,
+				 	 2.0, -1.5, 0.0,
+					 2.0,  0.0, 0.0 };
+float textCoord[] = {0.0 , 0.0,
+					 0.0 , 1.0,
+					 1.0 , 0.0,
+					 1.0 , 1.0,};
+
+
+GLuint texture;
 
 bool systemExited = false;
 int test = 0; // I threw this in to make sure the screen was updating and not just writing once and quiting
 
 void renderFunc(){
 
-    test++;
-    dbgFontPrintf(100,100,1.5f,"Hello World: %d", test);
-    dbgFontDraw();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glDisable(GL_CULL_FACE);
 
-    if(test >= 100){test = 0;}
+	glEnableClientState (GL_VERTEX_ARRAY);
+	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
+	glTexCoordPointer(2, GL_FLOAT, 0, textCoord);
+	glVertexPointer(3, GL_FLOAT, 0, bgCoord);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+
 }
 
 //thanks to Wolfi@metagames
@@ -52,6 +70,12 @@ int main(){
 
 	// initalize the dbgFonts
 	dbgFontInit();
+
+	char* path = "";
+	sprintf(path, "%s%s%s", SYS_APP_HOME,"/", "test.png");
+	texture = pngDecode(gfxWidth, gfxHeight, path);
+	glEnable( GL_TEXTURE_2D );
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 
 	while(!systemExited){

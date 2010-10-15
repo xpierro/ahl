@@ -44,14 +44,10 @@ static int32_t pngFree(void *ptr, void *cbCtrlFreeArg){
 	return 0;
 }
 
-void pngDecode(PSGLdevice* device, char *path)
+GLuint pngDecode(GLuint width, GLuint height, char *path)
 {
     cellSysmoduleLoadModule(CELL_SYSMODULE_FS);
     cellSysmoduleLoadModule(CELL_SYSMODULE_PNGDEC);
-
-    GLuint width = 1920;
-    GLuint height = 1280;
-    psglGetDeviceDimensions(device, &width, &height);
 
     //volatile ThreadStat_t threadState;
     //uint8_t *data = (uint8_t*)(height * width * 4);
@@ -104,9 +100,16 @@ void pngDecode(PSGLdevice* device, char *path)
     glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap ? GL_REPEAT : GL_CLAMP );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap ? GL_REPEAT : GL_CLAMP );
+    //glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap ? GL_REPEAT : GL_CLAMP );
+    //glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap ? GL_REPEAT : GL_CLAMP );
     gluBuild2DMipmaps( GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, data );
+
+    free( data );
+    cellPngDecClose(pngHandleM, pngHandleS);
+
+    cellPngDecDestroy(pngHandleM);
+
+    return pngText;
 }
 
 void pngDestroy()
