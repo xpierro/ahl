@@ -14,5 +14,5 @@ typedef struct PngFreeArg{
 
 static void *pngMalloc(uint32_t size, void *cbCtrlMallocArg);
 static int32_t pngFree(void *ptr, void *cbCtrlFreeArg);
-GLuint pngDecode(GLuint width, GLuint height, char *path);
+int pngDecode(GLuint width, GLuint height, GLuint& texture, char *path);
 void pngDestroy(void);

@@ -6,38 +6,80 @@
 #include <gfxObject.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include "src/png.h"
 
-float bgCoord[] = { -2.0, -1.5, 0.0,
-					-2.0,  0.0, 0.0,
-				 	 2.0, -1.5, 0.0,
-					 2.0,  0.0, 0.0 };
-float textCoord[] = {0.0 , 0.0,
-					 0.0 , 1.0,
-					 1.0 , 0.0,
-					 1.0 , 1.0,};
+float squareVertices[] = {-1.0f, 1.0f, 0.0f,
+                           1.0f, 1.0f, 0.0f,
+                           1.0f,-1.0f, 0.0f,
+                          -1.0f,-1.0f, 0.0f};
 
+float textVertices[] = {0.0f, 1.0f,
+                           1.0f, 1.0f,
+                           1.0f,0.0f,
+                          0.0f,0.0f};
 
+char pngPath[] = "/dev_hdd0/game/HELO11111/USRDIR/test.png";
 GLuint texture;
+char* message;
+int error = 0;
 
 bool systemExited = false;
-int test = 0; // I threw this in to make sure the screen was updating and not just writing once and quiting
+
+void getError(){
+    switch(error){
+    case 0:
+        message = "Woot!";
+        break;
+    case 1:
+        message = "Could not load CELL_SYSMODULE_FS";
+        break;
+    case 2:
+        message = "Could not load CELL_SYSMODULE_PNGDEC";
+        break;
+    case 3:
+        message = "Could not create Decoder";
+        break;
+    case 4:
+        message = "Could not Open Decoder";
+        break;
+    case 5:
+        message = "Could not read Header";
+    case 6:
+        message = "Could not set Decoder Parameters";
+        break;
+    case 7:
+        message = "Could not Decode the PNG!";
+        break;
+    default:
+        message = "shit >.<";
+        break;
+    }
+}
+
+
 
 void renderFunc(){
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glPushMatrix();
 
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	glDisable(GL_CULL_FACE);
 
-	glEnableClientState (GL_VERTEX_ARRAY);
-	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-	glTexCoordPointer(2, GL_FLOAT, 0, textCoord);
-	glVertexPointer(3, GL_FLOAT, 0, bgCoord);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glEnableClientState (GL_VERTEX_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, squareVertices);
 
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
+    //glEnableClientState (GL_TEXTURE_COORD_ARRAY);
+    //glTexCoordPointer(3, GL_FLOAT, 0, textVertices);
 
+    glPushMatrix();
+    //glColor4f(1.0, 1.0, 0.0, 0.3);
+    glDrawArrays(GL_QUADS, 0, 4);
+    glPopMatrix();
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+    //glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    dbgFontPrintf(100,100,1.5f, message);
+    dbgFontDraw();
 }
 
 //thanks to Wolfi@metagames
@@ -59,23 +101,21 @@ SYS_PROCESS_PARAM(1001, 0x10000)
 
 int main(){
 
-	// Initialize 6 SPUs but reserve 1 SPU as a raw SPU for PSGL
-	sys_spu_initialize(6, 1);
+    // init PSGL and get the current system width and height
+    sys_spu_initialize(6, 1);
+
+    cellSysutilRegisterCallback(0, systemCallback, NULL);
+
+    gfxInitGraphics();
+
+    dbgFontInit();
+
+    //glDisable(GL_CULL_FACE);
+
+    error = pngDecode(gfxWidth, gfxHeight,texture, pngPath);
+    getError();
 
     //Register the styemcallback function
-	cellSysutilRegisterCallback(0, systemCallback, NULL);
-
-	// init PSGL and get the current system width and height
-	gfxInitGraphics();
-
-	// initalize the dbgFonts
-	dbgFontInit();
-
-	char* path = "";
-	sprintf(path, "%s%s%s", SYS_APP_HOME,"/", "test.png");
-	texture = pngDecode(gfxWidth, gfxHeight, path);
-	glEnable( GL_TEXTURE_2D );
-	glBindTexture(GL_TEXTURE_2D, texture);
 
 
 	while(!systemExited){
@@ -86,6 +126,10 @@ int main(){
 		// render
 		renderFunc();
 
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+
+
 		// swap PSGL buffers -
 		psglSwap();
 
@@ -95,6 +139,7 @@ int main(){
 	}
 
 
+	//PS3::GL::close();
 	psglExit();
     sys_process_exit(0);
 

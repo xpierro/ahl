@@ -44,17 +44,28 @@ static int32_t pngFree(void *ptr, void *cbCtrlFreeArg){
 	return 0;
 }
 
-GLuint pngDecode(GLuint width, GLuint height, char *path)
+int pngDecode(GLuint width, GLuint height,GLuint &pngText, char *path)
 {
-    cellSysmoduleLoadModule(CELL_SYSMODULE_FS);
-    cellSysmoduleLoadModule(CELL_SYSMODULE_PNGDEC);
+    int32_t error;
+
+    error = cellSysmoduleLoadModule(CELL_SYSMODULE_FS);
+    if(error != CELL_OK)
+    {
+        return 1;
+    }
+
+    error = cellSysmoduleLoadModule(CELL_SYSMODULE_PNGDEC);
+    if(error != CELL_OK)
+    {
+        cellSysmoduleUnloadModule(CELL_SYSMODULE_FS);
+        return 2;
+    }
 
     //volatile ThreadStat_t threadState;
     //uint8_t *data = (uint8_t*)(height * width * 4);
-    uint8_t data[height * width * 4];
     //char* buffer = (char*) malloc(sizeof(char) * height * width * 4);
 
-    sys_spu_initialize(2, 0);
+    //sys_spu_initialize(2, 0);
 
     pngMallocArg.mallocCallCounts = 0;
 	pngFreeArg.freeCallCounts = 0;
@@ -66,10 +77,16 @@ GLuint pngDecode(GLuint width, GLuint height, char *path)
     pngThreadInParam.cbCtrlFreeFunc = pngFree;
     pngThreadInParam.cbCtrlFreeArg = &pngFreeArg;
 
-    cellPngDecCreate(&pngHandleM, &pngThreadInParam, &pngThreadOutParam);
+    error = cellPngDecCreate(&pngHandleM, &pngThreadInParam, &pngThreadOutParam);
+    if (error != CELL_OK)
+    {
+        cellSysmoduleUnloadModule(CELL_SYSMODULE_FS);
+        cellSysmoduleUnloadModule(CELL_SYSMODULE_PNGDEC);
+        return 3;
+    }
 
     //threadState = THREAD_INIT;
-
+/////////////////////////////////////////////
     pngSrc.srcSelect = CELL_PNGDEC_FILE;
     pngSrc.fileName = path;
     pngSrc.fileOffset = 0;
@@ -78,38 +95,72 @@ GLuint pngDecode(GLuint width, GLuint height, char *path)
     pngSrc.streamSize = 0;
     pngSrc.spuThreadEnable = CELL_PNGDEC_SPU_THREAD_DISABLE;
 
-    cellPngDecOpen(pngHandleM, &pngHandleS, &pngSrc, &pngOpenInfo);
-    cellPngDecReadHeader(pngHandleM, pngHandleS, &pngInfo);
+    error = cellPngDecOpen(pngHandleM, &pngHandleS, &pngSrc, &pngOpenInfo);
+    if (error != CELL_OK)
+    {
+        cellSysmoduleUnloadModule(CELL_SYSMODULE_FS);
+        cellSysmoduleUnloadModule(CELL_SYSMODULE_PNGDEC);
+        return 4;
+    }
+    error = cellPngDecReadHeader(pngHandleM, pngHandleS, &pngInfo);
+    if (error != CELL_OK)
+    {
+        cellSysmoduleUnloadModule(CELL_SYSMODULE_FS);
+        cellSysmoduleUnloadModule(CELL_SYSMODULE_PNGDEC);
+        return 5;
+    }
 
     pngInParam.commandPtr        = NULL;
     pngInParam.outputMode        = CELL_PNGDEC_TOP_TO_BOTTOM;
-    pngInParam.outputColorSpace  = CELL_PNGDEC_RGBA;
-    pngInParam.outputBitDepth    = 8;
+    pngInParam.outputColorSpace  = pngInfo.colorSpace;
+    pngInParam.outputBitDepth    = pngInfo.bitDepth;
     pngInParam.outputPackFlag    = CELL_PNGDEC_1BYTE_PER_1PIXEL;
-    pngInParam.outputAlphaSelect = CELL_PNGDEC_STREAM_ALPHA;
+    if((pngInfo.colorSpace == CELL_PNGDEC_GRAYSCALE_ALPHA)
+     ||(pngInfo.colorSpace == CELL_PNGDEC_RGBA)
+     ||(pngInfo.chunkInformation & 0x10))
+        {pngInParam.outputAlphaSelect = CELL_PNGDEC_STREAM_ALPHA;}
+    else{
+         pngInParam.outputAlphaSelect = CELL_PNGDEC_FIX_ALPHA;
+        }
     pngInParam.outputColorAlpha  = 0xff;
 
-    cellPngDecSetParameter(pngHandleM, pngHandleS, &pngInParam, &pngOutParam);
+    error = cellPngDecSetParameter(pngHandleM, pngHandleS, &pngInParam, &pngOutParam);
+    if (error != CELL_OK)
+    {
+        cellSysmoduleUnloadModule(CELL_SYSMODULE_FS);
+        cellSysmoduleUnloadModule(CELL_SYSMODULE_PNGDEC);
+        return 6;
+    }
 
-    pngDataCtrlParam.outputBytesPerLine = width * 4;
-    cellPngDecDecodeData(pngHandleM, pngHandleS, data, &pngDataCtrlParam, &pngDataOutInfo);
+    size_t buff_size = pngOutParam.outputWidth * pngOutParam.outputComponents * pngOutParam.outputHeight;
+    buff_size = (buff_size + 0xfffff) & (~0xfffff);
+    uint8_t *buffer = (uint8_t*)memalign(0x100000, buff_size);
+    pngDataCtrlParam.outputBytesPerLine = (pngOutParam.outputWidth * pngOutParam.outputComponents);
+    error = cellPngDecDecodeData(pngHandleM, pngHandleS, buffer, &pngDataCtrlParam, &pngDataOutInfo);
+    if (error != CELL_OK)
+    {
+        cellSysmoduleUnloadModule(CELL_SYSMODULE_FS);
+        cellSysmoduleUnloadModule(CELL_SYSMODULE_PNGDEC);
+        return 7;
+    }
 
-    GLuint pngText;
-    glGenTextures(1, &pngText);
+    /*glGenTextures(1, &pngText);
     glBindTexture(GL_TEXTURE_2D, pngText);
     glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     //glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap ? GL_REPEAT : GL_CLAMP );
     //glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap ? GL_REPEAT : GL_CLAMP );
-    gluBuild2DMipmaps( GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, data );
+    gluBuild2DMipmaps( GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer );*/
 
-    free( data );
     cellPngDecClose(pngHandleM, pngHandleS);
-
     cellPngDecDestroy(pngHandleM);
 
-    return pngText;
+    cellSysmoduleUnloadModule(CELL_SYSMODULE_FS);
+    cellSysmoduleUnloadModule(CELL_SYSMODULE_PNGDEC);
+
+    free( buffer );
+    return 0;
 }
 
 void pngDestroy()
