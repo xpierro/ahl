@@ -9,6 +9,7 @@
 #define GL_H_
 
 #include <psgl/psgl.h>
+#include <psgl/psglu.h>
 #include <list>
 
 using namespace std;
