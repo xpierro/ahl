@@ -5,6 +5,7 @@
 #include "lib/io/Console.h"
 #include "lib/io/DebugFont.h"
 #include "lib/network/Socket.h"
+#include "lib/texture/PNG.h"
 
 #include <fstream>
 #include <psgl/psgl.h>
@@ -18,6 +19,7 @@ using namespace PS3;
 float pos[] = { -1,-1,0,  -1,1,0,  1,-1,0,  1,1,0, };
 
 float squareVerticesFront[] = {0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0};
+float squareTexCoordFront[] = {0, 1, 1, 1, 1, 0, 0, 0};
 float squareVerticesBack[] =  {0, 0, -1, 1, 0, -1, 1, 1, -1, 0, 1, -1};
 float squareVerticesLeft[] = {0, 0, 0, 0, 1, 0, 0, 1, -1, 0, 0, -1};
 float squareVerticesRight[] = {1, 0, 0, 1, 1, 0, 1, 1, -1, 1, 0, -1};
@@ -78,6 +80,8 @@ float camTargetX = 0;
 float camTargetY = 0;
 float camTargetZ = 0;
 
+PNG png1(SYS_DEV_HDD0"/game/PLIB00000/USRDIR/flag.png");
+
 int loop() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
@@ -98,7 +102,7 @@ int loop() {
 	sock->readDataLine(line, 240);
 
 	if(strlen(line) > 0) {
-		c1 << line << endl;
+		//c1 << line << endl;
 	}
 	if(!dialogOpened && !Pad::isPadConnected(&p1)) {
 		dialogOpened = true;
@@ -155,7 +159,12 @@ int loop() {
 	void drawArrays(float*, float, float, float);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glBindTexture(GL_TEXTURE_2D, png1.getTextureId());
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glTexCoordPointer(2, GL_FLOAT, 0, squareTexCoordFront);
 	drawArrays(squareVerticesFront, 0.2, 0.3, 0.4);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
 	drawArrays(squareVerticesBack, 0.5, 0.3, 0.4);
 	drawArrays(squareVerticesLeft, 0.2, 0.3, 0.5);
 	drawArrays(squareVerticesRight, 0.2, 0.5, 0.4);
@@ -164,6 +173,7 @@ int loop() {
 	glDisableClientState(GL_VERTEX_ARRAY);
 
 	glPushMatrix();
+
 	DebugFont::drawDbgFont();
 	glPopMatrix();
 
