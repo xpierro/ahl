@@ -8,6 +8,7 @@
 
 #include <fstream>
 #include <psgl/psgl.h>
+#include <psgl/psglu.h>
 #include <list>
 #include <sys/paths.h>
 #include <sys/process.h>
@@ -16,7 +17,12 @@ using namespace PS3;
 
 float pos[] = { -1,-1,0,  -1,1,0,  1,-1,0,  1,1,0, };
 
-float squareVertices[] = {0, 0, 0, 0.5, 0, 0, 0.5, 0.5, 0, 0, 0.5, 0};
+float squareVerticesFront[] = {0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0};
+float squareVerticesBack[] =  {0, 0, -1, 1, 0, -1, 1, 1, -1, 0, 1, -1};
+float squareVerticesLeft[] = {0, 0, 0, 0, 1, 0, 0, 1, -1, 0, 0, -1};
+float squareVerticesRight[] = {1, 0, 0, 1, 1, 0, 1, 1, -1, 1, 0, -1};
+float squareVerticesUp[] = {0, 1, 0, 1, 1, 0, 1, 1, -1, 0, 1, -1};
+float squareVerticesDown[] = {0, 0, 0, 1, 0, 1, 1, 0, -1, 0, 0, -1};
 
 void drawAxisAlignedLine(float cntrX, float cntrY, float halfWidth, float halfHeight)
 {
@@ -64,11 +70,19 @@ static char line[250];
 
 static Socket* sock;
 
+float camX = 0;
+float camY = 0;
+float camZ = 2;
+
+float camTargetX = 0;
+float camTargetY = 0;
+float camTargetZ = 0;
+
 int loop() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glPushMatrix();
+	gluLookAtf(camX, camY, camZ, camTargetX, camTargetY, camTargetZ, 0, 1, 0);
 
 	if (!socketCreated) {
 		socketCreated = true;
@@ -96,7 +110,7 @@ int loop() {
 		dialogOpened = false;
 		dialogClosed = false;
 	}
-
+/*
 	if (p1.isButtonPressed(START_B)) {
 		rotate =  rotate ? false : true;
 		c1.printf(rotate ? "reprise de la rotation\n" : "arrêt de la rotation\n");
@@ -118,24 +132,51 @@ int loop() {
 		if (zRot>360) zRot-=360;
 		if (zRot<360) zRot += 360;
 	}
+*/
 
-	//c1.show();
-	DebugFont::drawDbgFont();
+	// TOWARD/BACKWARD translation
+	if (p1.isButtonPressed(UP_B)) {
+		camZ -= 0.1;
+		camTargetZ -= 0.1;
+	} else if (p1.isButtonPressed(DOWN_B)) {
+		camZ += 0.1;
+		camTargetZ += 0.1;
+	}
 
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+	//LEFT/RIGHT translation
+	if(p1.isButtonPressed(LEFT_B)) {
+		camTargetX -= 0.1;
+		camX -= 0.1;
+	} else if (p1.isButtonPressed(RIGHT_B)) {
+		camTargetX += 0.1;
+		camX += 0.1;
+	}
 
-	glDisable(GL_CULL_FACE);
+	void drawArrays(float*, float, float, float);
+
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, squareVertices);
-	glColor4f(0.2f,0.3f,0.4f,1);
-	glDrawArrays(GL_QUADS, 0, 4);
+	drawArrays(squareVerticesFront, 0.2, 0.3, 0.4);
+	drawArrays(squareVerticesBack, 0.5, 0.3, 0.4);
+	drawArrays(squareVerticesLeft, 0.2, 0.3, 0.5);
+	drawArrays(squareVerticesRight, 0.2, 0.5, 0.4);
+	drawArrays(squareVerticesUp, 0.1, 0.8, 0.4);
+	drawArrays(squareVerticesDown, 0.6, 0.7, 0.4);
 	glDisableClientState(GL_VERTEX_ARRAY);
+
+	glPushMatrix();
+	DebugFont::drawDbgFont();
+	glPopMatrix();
 
 	psglSwap();
 	// Evite le blocage normalement de "quitter le jeu" en mode multitache.
 	sys_timer_usleep (1000 * 10);
 	return 1;
+}
+
+void drawArrays(float *a, float r, float g, float b) {
+	glVertexPointer(3, GL_FLOAT, 0, a);
+	glColor4f(r, g, b, 1);
+	glDrawArrays(GL_QUADS, 0, 4);
 }
 
 int main() {

@@ -135,13 +135,14 @@ void GL::init() {
 
 		// On met en place la projection orthogonale.
 		GLfloat aspectRatio = psglGetDeviceAspectRatio(device);
-		float l=aspectRatio, r=-l, b=-1, t=1;
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrthof(l,r,b,t,0,1);
+		gluPerspectivef(70.0, aspectRatio, 1., 1000.);
+
 
 		glClearColor(0.f, 0.f, 0.f, 1.f);
 		glDisable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);
 
 		// Il faut effacer au moins une fois l'ecran.
 		glClear(GL_COLOR_BUFFER_BIT
