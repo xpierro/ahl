@@ -101,9 +101,12 @@ void GL::init() {
 		if (chosenResolutionIndex != -1) {
 			// On cherche à obtenir les information de largeur et longueur de la
 			// résolution choisie.
-			width = resolutions[chosenResolutionIndex][1];
-			height = resolutions[chosenResolutionIndex][2];
+			//width = resolutions[chosenResolutionIndex][1];
+			//height = resolutions[chosenResolutionIndex][2];
 
+			device = psglCreateDeviceAuto(GL_ARGB_SCE,GL_DEPTH_COMPONENT24,GL_MULTISAMPLING_4X_SQUARE_ROTATED_SCE);
+			psglGetDeviceDimensions(device, &width, &height);
+			/*
 			// On crée une sortie PSGL paramétrée avec nos dimensions.
 			PSGLdeviceParameters params;
 			// On choisi les parametres a faire prendre en compte par createDevice
@@ -120,7 +123,7 @@ void GL::init() {
 			params.height = height;
 
 			device = psglCreateDeviceExtended(&params);
-
+*/
 			context = psglCreateContext();
 			psglMakeCurrent(context, device);
 			psglResetCurrentContext();
