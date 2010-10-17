@@ -175,10 +175,6 @@ int loop() {
 
 	glPushMatrix();
 
-	if (!pngDebug) {
-		c1 << png1.debugInfo;
-		pngDebug = true;
-	}
 	DebugFont::drawDbgFont();
 	glPopMatrix();
 

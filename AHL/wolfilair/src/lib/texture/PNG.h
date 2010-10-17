@@ -46,7 +46,6 @@ public:
 	 */
 	GLuint getTextureId();
 
-	char* debugInfo;
 private:
 	void loadFromDisc();
 	//void drawTexCoordArray();

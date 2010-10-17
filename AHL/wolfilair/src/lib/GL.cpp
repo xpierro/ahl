@@ -140,9 +140,11 @@ void GL::init() {
 			glLoadIdentity();
 			gluPerspectivef(70.0, aspectRatio, 1., 1000.);
 
-
 			glClearColor(0.f, 0.f, 0.f, 1.f);
+			// Doesn't display back-facing polygons
+			// (counter clock wise vertices)
 			glDisable(GL_CULL_FACE);
+
 			glEnable(GL_DEPTH_TEST);
 			glEnable(GL_TEXTURE_2D);
 
