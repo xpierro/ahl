@@ -70,7 +70,7 @@ static bool socketCreated = false;
 
 static char line[250];
 
-static Socket* sock;
+//static Socket* sock;
 
 float camX = 0;
 float camY = 0;
@@ -92,20 +92,20 @@ int loop() {
 
 	if (!socketCreated) {
 		socketCreated = true;
-		sock = new Socket("irc.fansub-irc.eu", 6667);
-		if (sock->connectToHost()) {
+//		sock = new Socket("irc.fansub-irc.eu", 6667);
+//		if (sock->connectToHost()) {
 			//c1 << "couldn't connect :'(" << endl;
-		} else {
+		//} else {
 			//c1 << "connected!!" << endl;
-		}
+		//}
 	}
 
 	// Make sure we have coherent values in readDataLine for the length
-	sock->readDataLine(line, 240);
+	//sock->readDataLine(line, 240);
 
-	if(strlen(line) > 0) {
+	//if(strlen(line) > 0) {
 		//c1 << line << endl;
-	}
+	//}
 	if(!dialogOpened && !Pad::isPadConnected(&p1)) {
 		dialogOpened = true;
 		Dialog *d = new InformationDialog(BG_OPAQUE, "Veuillez reconnecter la manette", &dialogClosed);
