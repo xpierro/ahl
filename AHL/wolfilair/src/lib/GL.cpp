@@ -78,89 +78,48 @@ void GL::init() {
 
 		psglInit(&initOpts);
 
-		// Tableau des résolution désirées, par ordre de priorité.
-		const unsigned int resolutions[][3] = {
-				{CELL_VIDEO_OUT_RESOLUTION_1080, 1920, 1080},
-				{CELL_VIDEO_OUT_RESOLUTION_720, 1280, 720},
-				{CELL_VIDEO_OUT_RESOLUTION_576, 720, 576},
-				{CELL_VIDEO_OUT_RESOLUTION_480, 720, 480}
-		};
-		// On choisi la résolution disponible et on enregistre son index dans le
-		// tableau précédent.
-		int chosenResolutionIndex = -1;
-		for (int i = 0; i < 4 && chosenResolutionIndex == -1; i++) {
-			if(cellVideoOutGetResolutionAvailability(CELL_VIDEO_OUT_PRIMARY,
-													 resolutions[i][0],
-													 CELL_VIDEO_OUT_ASPECT_AUTO,
-													 0)) {
-				  chosenResolutionIndex = i;
-			}
-		}
 
-		// On peut maintenant passer à l'initialisation de PSGL
-		if (chosenResolutionIndex != -1) {
-			// On cherche à obtenir les information de largeur et longueur de la
-			// résolution choisie.
-			//width = resolutions[chosenResolutionIndex][1];
-			//height = resolutions[chosenResolutionIndex][2];
+		device = psglCreateDeviceAuto(GL_ARGB_SCE,
+				GL_DEPTH_COMPONENT24,
+				GL_MULTISAMPLING_4X_SQUARE_ROTATED_SCE);
+		psglGetDeviceDimensions(device, &width, &height);
 
-			device = psglCreateDeviceAuto(GL_ARGB_SCE,GL_DEPTH_COMPONENT24,GL_MULTISAMPLING_4X_SQUARE_ROTATED_SCE);
-			psglGetDeviceDimensions(device, &width, &height);
-			/*
-			// On crée une sortie PSGL paramétrée avec nos dimensions.
-			PSGLdeviceParameters params;
-			// On choisi les parametres a faire prendre en compte par createDevice
-			params.enable = PSGL_DEVICE_PARAMETERS_COLOR_FORMAT
-							| PSGL_DEVICE_PARAMETERS_DEPTH_FORMAT
-							| PSGL_DEVICE_PARAMETERS_MULTISAMPLING_MODE
-							| PSGL_DEVICE_PARAMETERS_WIDTH_HEIGHT;
-			// 4 composantes disponibles pr les vertex
-			params.colorFormat = GL_ARGB_SCE;
-			// 24 bits dispo (conflit avec les 4 composantes?)
-			params.depthFormat = GL_DEPTH_COMPONENT24;
-			params.multisamplingMode = GL_MULTISAMPLING_NONE_SCE;
-			params.width = width;
-			params.height = height;
+		context = psglCreateContext();
+		psglMakeCurrent(context, device);
+		psglResetCurrentContext();
 
-			device = psglCreateDeviceExtended(&params);
-*/
-			context = psglCreateContext();
-			psglMakeCurrent(context, device);
-			psglResetCurrentContext();
+		// On initialise le Viewport
 
-			// On initialise le Viewport
+		// On cherche à  obtenir les dimensions effectives de dessin.
+		GLuint renderWidth, renderHeight;
+		psglGetRenderBufferDimensions(device, &renderWidth, &renderHeight);
 
-			// On cherche à  obtenir les dimensions effectives de dessin.
-			GLuint renderWidth, renderHeight;
-			psglGetRenderBufferDimensions(device, &renderWidth, &renderHeight);
+		// On fixe la taille du Viewport
+		glViewport(0, 0, renderWidth, renderHeight);
 
-			// On fixe la taille du Viewport
-			glViewport(0, 0, renderWidth, renderHeight);
+		// On met en place la projection orthogonale.
+		GLfloat aspectRatio = psglGetDeviceAspectRatio(device);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspectivef(70.0, aspectRatio, 1., 1000.);
 
-			// On met en place la projection orthogonale.
-			GLfloat aspectRatio = psglGetDeviceAspectRatio(device);
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-			gluPerspectivef(70.0, aspectRatio, 1., 1000.);
+		glClearColor(0.f, 0.f, 0.f, 1.f);
+		// Doesn't display back-facing polygons
+		// (counter clock wise vertices)
+		glDisable(GL_CULL_FACE);
 
-			glClearColor(0.f, 0.f, 0.f, 1.f);
-			// Doesn't display back-facing polygons
-			// (counter clock wise vertices)
-			glDisable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_TEXTURE_2D);
 
-			glEnable(GL_DEPTH_TEST);
-			glEnable(GL_TEXTURE_2D);
+		// Il faut effacer au moins une fois l'ecran.
+		glClear(GL_COLOR_BUFFER_BIT
+				| GL_DEPTH_BUFFER_BIT
+				| GL_STENCIL_BUFFER_BIT);
+		psglSwap();
 
-			// Il faut effacer au moins une fois l'ecran.
-			glClear(GL_COLOR_BUFFER_BIT
-					| GL_DEPTH_BUFFER_BIT
-					| GL_STENCIL_BUFFER_BIT);
-			psglSwap();
-
-			// On enregistre l'event handler sur le slot 0.
-			cellSysutilRegisterCallback(0, systemCallback, NULL);
-			libraryStarted = true;
-		}
+		// On enregistre l'event handler sur le slot 0.
+		cellSysutilRegisterCallback(0, systemCallback, NULL);
+		libraryStarted = true;
 	}
 }
 
