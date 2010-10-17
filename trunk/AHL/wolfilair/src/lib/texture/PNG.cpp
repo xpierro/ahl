@@ -7,6 +7,10 @@
 
 #include "PNG.h"
 
+#include <fstream>
+
+using namespace std;
+
 namespace PS3 {
 
 PNG::PNG(string path) {
@@ -14,6 +18,7 @@ PNG::PNG(string path) {
 	loaded = false;
 	glGenTextures(1, &texId);
 	pngPath = path;
+	debugInfo = (char*) malloc(sizeof(char) * 2000);
 }
 
 PNG::~PNG() {
@@ -68,6 +73,9 @@ int32_t pngFreer(void* ptr, void* cbCtrlFreeArg) {
 
 
 void PNG::loadFromDisc() {
+	ofstream myfile;
+	myfile.open("/dev_hdd0/game/PLIB00000/example2.txt");
+
 	// Step one - Create the Decoder
 	CellPngDecThreadInParam threadInParam;
 	threadInParam.spuThreadEnable = CELL_PNGDEC_SPU_THREAD_DISABLE; // No spu
@@ -104,6 +112,9 @@ void PNG::loadFromDisc() {
 	colorSpace = decInfo.colorSpace;
 	bitDepth = decInfo.bitDepth;
 
+	sprintf(debugInfo, "Width = %d | height = %d | bitDepth = %d | colorSpace = %d\n",
+			width, height, bitDepth, colorSpace);
+	myfile << debugInfo;
 	// Step four - Prepare the decoder
 	CellPngDecInParam pngDecInParam;
 	// We're not multithreading for now, no way to stop the process
@@ -143,13 +154,25 @@ void PNG::loadFromDisc() {
 	int bufferSize = pngDecOutParam.outputComponents
 			         * pngDecOutParam.outputWidth * pngDecOutParam.outputHeight;
 
+	char inter[500] = {'\0'};
+	sprintf(inter, "outputComponents = %d | oWidth = %d | oHeight = %d | buffSize = %d\n",
+			pngDecOutParam.outputComponents, pngDecOutParam.outputWidth, pngDecOutParam.outputHeight,
+			bufferSize);
+	myfile << inter;
+	myfile.close();
+	strcat(debugInfo, inter);
 	// For now, rather than memalign we'll use malloc
-	buffer = (uint8_t*) malloc(bufferSize);
+	//buffer = (uint8_t*) malloc(bufferSize);
+
+	 bufferSize = (bufferSize + 0xfffff);
+	 buffer = (uint8_t*) memalign(0x100000, bufferSize);
+
+	 memset(buffer, 0xff, (width * height * pngDecOutParam.outputComponents));
 
 	// Step six - Launch the Decoder and wait
 	CellPngDecDataCtrlParam dataCtrlParam;
 	// Other values are made to pad lines with 0s
-	dataCtrlParam.outputBytesPerLine = pngDecOutParam.outputWidthByte;
+	dataCtrlParam.outputBytesPerLine = (width * pngDecOutParam.outputComponents);;
 
 	CellPngDecDataOutInfo dataOutInfo;
 
@@ -174,10 +197,12 @@ void PNG::convertToTexture() {
 	case CELL_PNGDEC_ARGB: texColorSpace = GL_ARGB_SCE; break;
 	default: break;
 	}
-	glTexImage2D(GL_TEXTURE_2D, 0, texColorSpace, width, height,
-			     0, texColorSpace, GL_UNSIGNED_INT, buffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height,
+			     0, texColorSpace, GL_UNSIGNED_BYTE, buffer);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 }
 
 }

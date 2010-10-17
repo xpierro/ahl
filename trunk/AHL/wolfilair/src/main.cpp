@@ -19,7 +19,7 @@ using namespace PS3;
 float pos[] = { -1,-1,0,  -1,1,0,  1,-1,0,  1,1,0, };
 
 float squareVerticesFront[] = {0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0};
-float squareTexCoordFront[] = {0, 1, 1, 1, 1, 0, 0, 0};
+float squareTexCoordFront[] = {0., 0., 1., 0., 1., 1., 0., 1.};
 float squareVerticesBack[] =  {0, 0, -1, 1, 0, -1, 1, 1, -1, 0, 1, -1};
 float squareVerticesLeft[] = {0, 0, 0, 0, 1, 0, 0, 1, -1, 0, 0, -1};
 float squareVerticesRight[] = {1, 0, 0, 1, 1, 0, 1, 1, -1, 1, 0, -1};
@@ -82,6 +82,8 @@ float camTargetZ = 0;
 
 PNG png1(SYS_DEV_HDD0"/game/PLIB00000/USRDIR/flag.png");
 
+static bool pngDebug = false;
+
 int loop() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
@@ -92,9 +94,9 @@ int loop() {
 		socketCreated = true;
 		sock = new Socket("irc.fansub-irc.eu", 6667);
 		if (sock->connectToHost()) {
-			c1 << "couldn't connect :'(" << endl;
+			//c1 << "couldn't connect :'(" << endl;
 		} else {
-			c1 << "connected!!" << endl;
+			//c1 << "connected!!" << endl;
 		}
 	}
 
@@ -157,9 +159,8 @@ int loop() {
 	}
 
 	void drawArrays(float*, float, float, float);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
 	glBindTexture(GL_TEXTURE_2D, png1.getTextureId());
+	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glTexCoordPointer(2, GL_FLOAT, 0, squareTexCoordFront);
 	drawArrays(squareVerticesFront, 0.2, 0.3, 0.4);
@@ -174,6 +175,10 @@ int loop() {
 
 	glPushMatrix();
 
+	if (!pngDebug) {
+		c1 << png1.debugInfo;
+		pngDebug = true;
+	}
 	DebugFont::drawDbgFont();
 	glPopMatrix();
 
@@ -185,7 +190,7 @@ int loop() {
 
 void drawArrays(float *a, float r, float g, float b) {
 	glVertexPointer(3, GL_FLOAT, 0, a);
-	glColor4f(r, g, b, 1);
+	//glColor4f(r, g, b, 1);
 	glDrawArrays(GL_QUADS, 0, 4);
 }
 

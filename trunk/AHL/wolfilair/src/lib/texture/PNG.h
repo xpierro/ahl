@@ -45,6 +45,8 @@ public:
 	 * Load the png if it isn't loaded already and returns the texture id
 	 */
 	GLuint getTextureId();
+
+	char* debugInfo;
 private:
 	void loadFromDisc();
 	//void drawTexCoordArray();
