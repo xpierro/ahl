@@ -78,10 +78,10 @@ void GL::init() {
 
 		psglInit(&initOpts);
 
-
+		// We create the device on which the viewport will be built
 		device = psglCreateDeviceAuto(GL_ARGB_SCE,
-				GL_DEPTH_COMPONENT24,
-				GL_MULTISAMPLING_4X_SQUARE_ROTATED_SCE);
+									  GL_DEPTH_COMPONENT24,
+									  GL_MULTISAMPLING_4X_SQUARE_ROTATED_SCE);
 		psglGetDeviceDimensions(device, &width, &height);
 
 		context = psglCreateContext();
@@ -97,7 +97,7 @@ void GL::init() {
 		// On fixe la taille du Viewport
 		glViewport(0, 0, renderWidth, renderHeight);
 
-		// On met en place la projection orthogonale.
+		// On met en place la projection en perspective.
 		GLfloat aspectRatio = psglGetDeviceAspectRatio(device);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
