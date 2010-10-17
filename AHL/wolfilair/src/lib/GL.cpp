@@ -145,8 +145,6 @@ void GL::init() {
 			glDisable(GL_CULL_FACE);
 			glEnable(GL_DEPTH_TEST);
 			glEnable(GL_TEXTURE_2D);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_ONE, GL_SRC_COLOR);
 
 			// Il faut effacer au moins une fois l'ecran.
 			glClear(GL_COLOR_BUFFER_BIT
