@@ -1,31 +1,42 @@
-#!/usr/bin/make
-# SCE CONFIDENTIAL
-# PLAYSTATION(R)3 Programmer Tool Runtime Library 192.001
-#                 Copyright (C) 2007 Sony Computer Entertainment Inc.
-#                                                All Rights Reserved.
 .PHONY: gen_pkg npdrm_package
 
-include MakeDefs
+CELL_MK_DIR = $(CELL_SDK)/samples/mk
+include $(CELL_MK_DIR)/sdk.makedef.mk
 
-GFX_COMMON=Common
+PPU_SRCS = src/main.cpp src/lib/tools/Thread.cpp\
+           src/lib/GL.cpp src/lib/shape/Shape.cpp\
+           src/lib/Vertex3D.cpp src/lib/io/Pad.cpp\
+           src/lib/tools/dialog/Dialog.cpp\
+           src/lib/tools/dialog/ErrorDialog.cpp\
+           src/lib/tools/dialog/InformationDialog.cpp\
+           src/lib/io/Console.cpp\
+           src/lib/io/DebugFont.cpp src/lib/network/Socket.cpp\
+           src/lib/texture/PNG.cpp\
+           src/lib/2D/Sprite.cpp
+PPU_TARGET = PS3Library.elf
 
-PPU_INCDIRS		+= -Iinclude -I$(CELL_SDK)/samples/sdk/graphics/psgl/Common/
-PPU_CPPFLAGS		+= -DPSGL
-PPU_CXXSTDFLAGS		+= -fno-exceptions
-PPU_SRCS		:= main.cpp src/png.cpp \
-					$(CELL_SDK)/samples/sdk/graphics/psgl/Common/gfxObject.cpp \
-					$(CELL_SDK)/samples/sdk/graphics/psgl/Common/gfxCommon.cpp \
+PPU_INCDIRS	+= -I$(CELL_SDK)/target/ppu/include/sysutil
+PPU_CXXSTDFLAGS		+= # utiliser -fno-exceptions pour linker des .a
+PPU_CPPFLAGS		:= -DPSGL -D_DEBUG
 
-PPU_TARGET		:= hello_world.elf
-PPU_LDLIBS		:= -lpngdec_stub -lsysmodule_stub $(GRAPHICS_SAMPLE_CORE_LIBS)
+PPU_LIBS		:=
+PPU_LDLIBDIR	:= -L$(PPU_PSGL_LIBDIR)
 
-VPSHADER_SOURCES        := $(CELL_GRAPHICS_DATA_DIR)/shaders/Tutorial/vs_basicSample.cg
-FPSHADER_SOURCES        := $(CELL_GRAPHICS_DATA_DIR)/shaders/Tutorial/fs_basicSample.cg
 
-include MakeRules
+PPU_LDLIBS 	+= -lPSGL -lPSGLU -lPSGLFX -lm -lpthread\
+		   -lresc_stub -lgcm_cmd -lgcm_sys_stub \
+		   -lnet_stub -lio_stub -lsysutil_stub -lsysmodule_stub\
+		   -ldbgfont -lnet_stub -lpngdec_stub
 
-gen_pkg:: $(PPU_TARGET)
+include $(CELL_MK_DIR)/sdk.target.mk
+
+gen_pkg: $(PPU_TARGET)
 	$(PPU_STRIP) -s $< -o $(OBJS_DIR)/$(PPU_TARGET)
-	$(MAKE_FSELF) $(OBJS_DIR)/$(PPU_TARGET) EBOOT.BIN				# to use in /app_home/PS3_GAME
-	$(MAKE_FSELF_NPDRM) $(OBJS_DIR)/$(PPU_TARGET) PS3_GAME/USRDIR/EBOOT.BIN
-	$(MAKE_PACKAGE_NPDRM) package.conf PS3_GAME/
+	$(MAKE_FSELF) $(OBJS_DIR)/$(PPU_TARGET) EBOOT.BIN
+	$(MAKE_FSELF_NPDRM) $(OBJS_DIR)/$(PPU_TARGET) \
+	pkg/PS3_GAME/USRDIR/EBOOT.BIN
+	$(MAKE_PACKAGE_NPDRM) pkg/ps3lib.conf pkg/PS3_GAME/
+	mv *.pkg pkg/PS3Library.pkg # déplace le package
+
+export_pkg: gen_pkg
+	cp pkg/PS3Library.pkg /z/
