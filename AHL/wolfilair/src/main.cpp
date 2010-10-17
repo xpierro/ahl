@@ -191,10 +191,6 @@ void drawArrays(float *a, float r, float g, float b) {
 }
 
 int main() {
-	  ofstream myfile;
-	  myfile.open(SYS_DEV_HDD0"/game/PLIB00000/example2.txt");
-	  myfile << "Writing this to a file.\n";
-	  myfile.close();
 	PS3::GL::executeMainLoop(loop);
 	return 0;
 }
