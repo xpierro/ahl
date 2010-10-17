@@ -30,13 +30,18 @@ private:
 	static list<Socket*>* sockets;
 	int sock; // Socket descriptor
 	struct sockaddr addr; // Informations about the host we want to connect to
+	bool connectable;
+	bool connected;
+	string remoteHost;
+	int remotePort;
 public:
 	Socket(string host, short port);
 	virtual ~Socket();
+
 	/**
 	 * Connects the socket to the remote host.
 	 */
-	int connectToHost();
+	bool connectToHost();
 
 	/**
 	 * Read all data until a newLine char has been met.
@@ -51,10 +56,12 @@ public:
 	/**
 	 * Closes the socket
 	 */
-	int close();
+	void close();
 
 	static void initSockets();
 	static void closeSockets();
+private:
+	bool createBSDSocket(string& host, int port);
 };
 
 }
