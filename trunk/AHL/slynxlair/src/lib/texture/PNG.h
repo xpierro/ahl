@@ -39,6 +39,8 @@ public:
 	PNG(string path);
 	virtual ~PNG();
 
+	void make(string path);
+
 	static void initPngDec();
 	static void closePngDec();
 

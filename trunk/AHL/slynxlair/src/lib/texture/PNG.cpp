@@ -27,6 +27,15 @@ PNG::~PNG() {
 	free(buffer);
 }
 
+void PNG::make(string path)
+{
+    initPngDec();
+	loaded = false;
+	glGenTextures(1, &texId);
+	pngPath = path;
+	loadFromDisc();
+}
+
 bool PNG::pngInitialized = false;
 
 static void pngCallback(const uint64_t status, const uint64_t p, void *u) {
