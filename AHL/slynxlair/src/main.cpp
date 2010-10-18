@@ -33,10 +33,8 @@ float camTargetX = 0;
 float camTargetY = 0;
 float camTargetZ = 0;
 
-PNG png1(SYS_DEV_HDD0"/game/PLIB00000/USRDIR/flag.png");
-Sprite sprite1(png1);
-
-static bool pngDebug = false;
+//PNG png1(SYS_DEV_HDD0"/game/PLIB00000/USRDIR/flag.png");
+Sprite sprite1(SYS_DEV_HDD0"/game/PLIB00000/USRDIR/flag.png");
 
 int loop() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -44,21 +42,14 @@ int loop() {
 	glLoadIdentity();
 	gluLookAtf(camX, camY, camZ, camTargetX, camTargetY, camTargetZ, 0, 1, 0);
 
-
-	void drawArrays(float*, float, float, float);
-	glBindTexture(GL_TEXTURE_2D, sprite1.image.getTextureId());
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
 	glVertexPointer(3, GL_FLOAT, 0, sprite1.getCoord());
     glDrawArrays(GL_QUADS, 0, 4);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glTexCoordPointer(2, GL_FLOAT, 0, allImage);
-
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
-
-	glPushMatrix();
-	glPopMatrix();
 
 	psglSwap();
 	// Evite le blocage normalement de "quitter le jeu" en mode multitache.
@@ -67,6 +58,7 @@ int loop() {
 }
 
 int main() {
+    glBindTexture(GL_TEXTURE_2D, sprite1.image.getTextureId());
 	PS3::GL::executeMainLoop(loop);
 	return 0;
 }

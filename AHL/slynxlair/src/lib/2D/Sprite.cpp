@@ -5,10 +5,11 @@
 namespace PS3 {
 Sprite::Sprite(){}
 
-Sprite::Sprite(PNG &png)
+Sprite::Sprite(string path)
 {
-    image = png;
-    pos[0] = pos[1] = 0;
+    image.make(path);
+    pos[0] = 0;
+    pos[1] = 0;
 }
 
 void Sprite::setX(int x)
@@ -52,4 +53,5 @@ float* Sprite::getCoord()
     convertToFloat();
     return coord;
 }
+
 }
