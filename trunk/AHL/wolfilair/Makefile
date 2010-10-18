@@ -11,7 +11,7 @@ PPU_SRCS = src/main.cpp src/lib/tools/Thread.cpp\
            src/lib/tools/dialog/InformationDialog.cpp\
            src/lib/io/Console.cpp\
            src/lib/io/DebugFont.cpp src/lib/network/Socket.cpp\
-           src/lib/texture/PNG.cpp
+           src/lib/texture/PNG.cpp src/lib/io/Font.cpp
 PPU_TARGET = PS3Library.elf
 
 PPU_INCDIRS	+= -I$(CELL_SDK)/target/ppu/include/sysutil
@@ -25,7 +25,8 @@ PPU_LDLIBDIR	:= -L$(PPU_PSGL_LIBDIR)
 PPU_LDLIBS 	+= -lPSGL -lPSGLU -lPSGLFX -lm -lpthread\
 		   -lresc_stub -lgcm_cmd -lgcm_sys_stub \
 		   -lnet_stub -lio_stub -lsysutil_stub -lsysmodule_stub\
-		   -ldbgfont -lnet_stub -lpngdec_stub
+		   -ldbgfont -lnet_stub -lpngdec_stub -lfont_stub\
+		   -lfontFT_stub
 
 include $(CELL_MK_DIR)/sdk.target.mk
 
