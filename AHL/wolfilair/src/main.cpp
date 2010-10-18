@@ -6,6 +6,7 @@
 #include "lib/io/DebugFont.h"
 #include "lib/network/Socket.h"
 #include "lib/texture/PNG.h"
+#include "lib/io/Font.h"
 
 #include <fstream>
 #include <psgl/psgl.h>
@@ -26,40 +27,6 @@ float squareVerticesRight[] = {1, 0, 0, 1, 1, 0, 1, 1, -1, 1, 0, -1};
 float squareVerticesUp[] = {0, 1, 0, 1, 1, 0, 1, 1, -1, 0, 1, -1};
 float squareVerticesDown[] = {0, 0, 0, 1, 0, 1, 1, 0, -1, 0, 0, -1};
 
-void drawAxisAlignedLine(float cntrX, float cntrY, float halfWidth, float halfHeight)
-{
-  glPushMatrix();
-  glTranslatef(cntrX,cntrY,0);
-  glScalef(halfWidth,halfHeight,1);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-  glPopMatrix();
-}
-
-void drawGrid(const int numLines)
-{
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, pos);
-
-  const float hw=0.005f, hh=1.0f;
-  float dwh = 2.0f/numLines;
-
-  glColor4f(1,1,1,1);
-  for (float x=-1+(dwh*0.5f); x<1; x+=dwh)
-    drawAxisAlignedLine(x,0,hw,hh);
-  for (float y=-1+(dwh*0.5f); y<1; y+=dwh)
-    drawAxisAlignedLine(0,y,hh,hw);
-
-  glColor4f(1,0,0,1);
-  drawAxisAlignedLine(-1,0,hw,hh);
-  drawAxisAlignedLine(1,0,hw,hh);
-  drawAxisAlignedLine(0,-1,hh,hw);
-  drawAxisAlignedLine(0,1,hh,hw);
-  drawAxisAlignedLine(0,0,hw*2,hw*2);
-}
-
-static float zRot=0;
-static bool rotate = true;
-static int rotation_direction = 1; // Prend 1 ou -1 selon le sens de rotation autour de z
 static Pad p1(0); // On init le premier pad
 static Console c1; // On init la premiere console
 
@@ -81,8 +48,8 @@ float camTargetY = 0;
 float camTargetZ = 0;
 
 PNG png1(SYS_DEV_HDD0"/game/PLIB00000/USRDIR/flag.png");
-
-static bool pngDebug = false;
+Font f1(SYS_DEV_HDD0"/game/PLIB00000/USRDIR/font.ttf", c1);
+GLuint i = f1.renderChar('z', c1);
 
 int loop() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -159,7 +126,7 @@ int loop() {
 	}
 
 	void drawArrays(float*, float, float, float);
-	glBindTexture(GL_TEXTURE_2D, png1.getTextureId());
+	glBindTexture(GL_TEXTURE_2D, i);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glTexCoordPointer(2, GL_FLOAT, 0, squareTexCoordFront);
@@ -186,7 +153,7 @@ int loop() {
 
 void drawArrays(float *a, float r, float g, float b) {
 	glVertexPointer(3, GL_FLOAT, 0, a);
-	//glColor4f(r, g, b, 1);
+	glColor4f(r, g, b, 1);
 	glDrawArrays(GL_QUADS, 0, 4);
 }
 
