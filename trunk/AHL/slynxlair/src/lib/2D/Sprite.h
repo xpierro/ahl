@@ -19,7 +19,7 @@ public:
     int getX();
     int getY();
 
-    void convertToFloat();
+    void setCoord();
     float* getCoord();
 
 };
