@@ -35,23 +35,12 @@ private:
 	 */
 	CellFont font;
 
-	/**
-	 * Tool that can render a glyph to a surface.
-	 */
-	CellFontRenderer renderer;
-
-	/**
-	 * Surface bearing several glyphs printed on it thanks to the renderer
-	 */
-	CellFontRenderSurface surface;
+	int fontId;
 
 public:
 	static const int MAX_FONTS_LOADABLE = 10;
 
-	/**
-	 * Creates a new font object from a TTF font file.
-	 */
-	Font(string path);
+	Font();
 	virtual ~Font();
 
 	/**
@@ -60,21 +49,17 @@ public:
 	static void initFont();
 
 	/**
-	 * Shut the font library down
+	 * Shuts the font library down
 	 */
 	static void closeFonts();
 
-	/**
-	 * Return the text dimension in pixels for a string.
-	 */
-	void getTextDimensions(string str, float& width, float& height);
+	CellFont* getFontDescriptor();
+	const CellFontLibrary* getLibrary() const;
+protected:
+	virtual void load() = 0;
+	virtual void unload() = 0;
 
-	/**
-	 * Renter a char to a texture.
-	 */
-	GLuint renderChar(char c);
-private:
-	void createRenderer();
+	int getFontId() const;
 };
 
 }

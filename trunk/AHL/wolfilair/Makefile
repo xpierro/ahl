@@ -11,7 +11,8 @@ PPU_SRCS = src/main.cpp src/lib/tools/Thread.cpp\
            src/lib/tools/dialog/InformationDialog.cpp\
            src/lib/io/Console.cpp\
            src/lib/io/DebugFont.cpp src/lib/network/Socket.cpp\
-           src/lib/texture/PNG.cpp src/lib/io/Font.cpp
+           src/lib/texture/PNG.cpp src/lib/font/Font.cpp\
+           src/lib/font/CustomFont.cpp src/lib/texture/FontTexture.cpp
 PPU_TARGET = PS3Library.elf
 
 PPU_INCDIRS	+= -I$(CELL_SDK)/target/ppu/include/sysutil
