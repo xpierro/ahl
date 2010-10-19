@@ -168,7 +168,7 @@ GLuint Font::renderChar(char c) {
 	for (int index = 0; index < 4; index++) {
 		cellFontRenderCharGlyphImage(&font, str[index], &surface, 0, 0, &metrics, &transInfo);
 		// Alpha copy with fixed color
-		uint32_t* tex = (uint32_t*) surface.buffer;
+		uint32_t* tex = (uint32_t*) surface.buffer + 99 * 100;
 		uint8_t* img = transInfo.Image;
 		uint32_t color = 0xffffff00;
 
@@ -178,7 +178,7 @@ GLuint Font::renderChar(char c) {
 					tex[u + currentX] = img[u]|color;
 				}
 			}
-			tex += transInfo.surfWidthByte/4; // TEX IS MODIFIED...
+			tex -= transInfo.surfWidthByte/4; // TEX IS MODIFIED...
 			img += transInfo.imageWidthByte;
 		}
 		currentX += transInfo.imageWidth;
