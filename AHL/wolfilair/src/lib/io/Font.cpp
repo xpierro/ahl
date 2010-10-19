@@ -10,6 +10,8 @@
 #include "../GL.h"
 #include <cell/sysmodule.h>
 #include <string>
+#include <fstream>
+#include <sys/paths.h>
 
 using namespace std;
 
@@ -19,14 +21,14 @@ bool Font::fontInitialized = false;
 const CellFontLibrary* Font::library = NULL;
 int Font::uniqueId = 1;
 
-Font::Font(string path, Console& c) {
-	initFont(c);
-	c.printf("ouv = %d\n", cellFontOpenFontFile(library, (uint8_t*) path.c_str(), 0, uniqueId, &font));
+Font::Font(string path) {
+	initFont();
+	cellFontOpenFontFile(library, (uint8_t*) path.c_str(), 0, uniqueId, &font);
 	uniqueId += 1;
 
 	cellFontSetResolutionDpi(&font, 72, 72);
-	cellFontSetScalePoint(&font, 24, 24);
-	createRenderer(c);
+	cellFontSetScalePoint(&font, 60, 60);
+	createRenderer();
 }
 
 Font::~Font() { }
@@ -39,60 +41,58 @@ static void fontCallback(const uint64_t status, const uint64_t p, void *u) {
 	}
 }
 
-static void* fonts_malloc( void*obj, uint32_t size )
-{
-	obj=NULL;
-	return malloc( size );
+static void* fontMalloc(void* object, unsigned int size) {
+	(void) object;
+	return malloc(size);
 }
-static void  fonts_free( void*obj, void*p )
-{
-	obj=NULL;
-	free( p );
+
+static void fontFree(void* object, void* ptr) {
+	(void) object;
+	free(ptr);
 }
-static void* fonts_realloc( void*obj, void* p, uint32_t size )
-{
-	obj=NULL;
-	return realloc( p, size );
+
+static void* fontRealloc(void* object, void* ptr, unsigned int newSize) {
+	(void) object;
+	return realloc(ptr, newSize);
 }
-static void* fonts_calloc( void*obj, uint32_t numb, uint32_t blockSize )
-{
-	obj=NULL;
-	return calloc( numb, blockSize );
+static void* fontCalloc(void* object, unsigned int elementNumber,
+									  unsigned int elementSize ) {
+	(void) object;
+	return calloc(elementNumber, elementSize);
 }
 
 
 
 
-void Font::initFont(Console& c) {
+void Font::initFont() {
 	if (!fontInitialized) {
 		cellSysmoduleLoadModule(CELL_SYSMODULE_FS);
 		cellSysmoduleLoadModule(CELL_SYSMODULE_FONT);
 		cellSysmoduleLoadModule(CELL_SYSMODULE_FREETYPE );
 		cellSysmoduleLoadModule(CELL_SYSMODULE_FONTFT);
 
-		// 4MB cache
-		uint32_t* fontCache = (uint32_t*) malloc(1024 * 1024 * 4);
+		// 4MB cache used to speed up Font operations
+		int cacheSize = 4 * 1024 * 1024;
+		void* fontCache = malloc(cacheSize);
+		// Array of font description
 		CellFontEntry* userFontEntrys =
 			(CellFontEntry*) malloc(sizeof(CellFontEntry) * MAX_FONTS_LOADABLE);
 		CellFontConfig config;
-		config.FileCache.buffer = fontCache;
-		config.FileCache.size = 4 * 1024 * 1024;
+		config.FileCache.buffer = (unsigned int*) fontCache;
+		config.FileCache.size = cacheSize;
 		config.userFontEntrys = userFontEntrys;
 		config.userFontEntryMax = MAX_FONTS_LOADABLE;
-		c.printf("libinit0 = %d\n", cellFontInit(&config));
+		cellFontInit(&config);
 
-		CellFontLibraryConfigFT ftConfig;
-
-		CellFontLibraryConfigFT_initialize(&ftConfig);
-
-		ftConfig.MemoryIF.Object  = NULL;
-		ftConfig.MemoryIF.Malloc  = fonts_malloc;
-		ftConfig.MemoryIF.Free    = fonts_free;
-		ftConfig.MemoryIF.Realloc = fonts_realloc;
-		ftConfig.MemoryIF.Calloc  = fonts_calloc;
-
-
-		c.printf("libinit = %d\n", cellFontInitLibraryFreeType(&ftConfig, &library));
+		// Now we configure the freetype part.
+		CellFontLibraryConfigFT freetypeConfig;
+		CellFontLibraryConfigFT_initialize(&freetypeConfig);
+		freetypeConfig.MemoryIF.Object  = NULL; // First arg of the functions
+		freetypeConfig.MemoryIF.Malloc  = fontMalloc;
+		freetypeConfig.MemoryIF.Free    = fontFree;
+		freetypeConfig.MemoryIF.Realloc = fontRealloc;
+		freetypeConfig.MemoryIF.Calloc  = fontCalloc;
+		cellFontInitLibraryFreeType(&freetypeConfig, &library);
 
 		GL::addUserCallback(fontCallback);
 		fontInitialized = true;
@@ -103,7 +103,7 @@ void Font::closeFonts() {
 
 }
 
-void Font::getTextDimension(string str, float& width, float& height) {
+void Font::getTextDimensions(string str, float& width, float& height) {
 	CellFontHorizontalLayout layout;
 	CellFontGlyphMetrics metrics;
 
@@ -139,47 +139,55 @@ void Font::getTextDimension(string str, float& width, float& height) {
 	height = lineNb * layout.lineHeight;
 }
 
-void Font::createRenderer(Console& c) {
+void Font::createRenderer() {
 	CellFontRendererConfig config;
 	CellFontRendererConfig_initialize(&config);
 	CellFontRendererConfig_setAllocateBuffer(&config, 1024 * 1024, 0);
 
 	// Create renderer
-	c.printf("Erreur create renderer = %d\n", cellFontCreateRenderer(library, &config, &renderer));
+	cellFontCreateRenderer(library, &config, &renderer);
 
 	// Bind the font with the renderer
-	c.printf("Erreur Bind renderer = %d\n", cellFontBindRenderer(&font, &renderer));
+	cellFontBindRenderer(&font, &renderer);
+	// Doesn't rescale: use previous values.
+	cellFontSetupRenderScalePixel(&font, 0.0f, 0.0f);
 
-	c.printf("Erreur scale pixel = %d\n", cellFontSetupRenderScalePixel(&font, 24.f, 24.f));
-
+	// Creates the surface data structure, holding a buffer.
 	void* buffer = malloc(1024 * 1024);
 	cellFontRenderSurfaceInit(&surface, buffer, 4 * 100, 4, 100, 100);
 	cellFontRenderSurfaceSetScissor(&surface, 0, 0, 100, 100);
 }
 
-GLuint Font::renderChar(char c, Console& cc) {
+GLuint Font::renderChar(char c) {
 	(void) c;
 	CellFontGlyphMetrics metrics;
 	CellFontImageTransInfo transInfo;
-	cc.printf("Erreyr glyph = %d\n", cellFontRenderCharGlyphImage(&font, 'A', &surface, 0, 0, &metrics, &transInfo));
-	// Alpha copy with fixed color
-	uint32_t* tex = (uint32_t*) transInfo.Surface;
-	uint8_t* img = transInfo.Image;
-	uint32_t color = 0xffffff00;
-	cc.printf("w = %d | h = %d | trans = %d\n", transInfo.imageWidth, transInfo.imageHeight, transInfo.surfWidthByte);
+	char str[4];
+	strcpy(str, "Hey");
+	int currentX = 0;
+	for (int index = 0; index < 4; index++) {
+		cellFontRenderCharGlyphImage(&font, str[index], &surface, 0, 0, &metrics, &transInfo);
+		// Alpha copy with fixed color
+		uint32_t* tex = (uint32_t*) surface.buffer;
+		uint8_t* img = transInfo.Image;
+		uint32_t color = 0xffffff00;
 
-	for (unsigned int v=0; v < transInfo.imageHeight; v++ ) {
-		for (unsigned int u=0; u < transInfo.imageWidth; u++ ) { //!!!!!!
-			if ( (tex[u]&0x000000ff)<img[u] ){
-				tex[u] = img[u]|color;
+		for (unsigned int v=0; v < transInfo.imageHeight; v++ ) {
+			for (unsigned int u = 0; u < transInfo.imageWidth; u++ ) { //!!!!!!
+				if ( (tex[u + currentX]&0x000000ff) < img[u] ){
+					tex[u + currentX] = img[u]|color;
+				}
 			}
+			tex += transInfo.surfWidthByte/4; // TEX IS MODIFIED...
+			img += transInfo.imageWidthByte;
 		}
-		tex += transInfo.surfWidthByte/4;
-		img += transInfo.imageWidthByte;
+		currentX += transInfo.imageWidth;
 	}
+
 	GLuint i;
 	glGenTextures(1, &i);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 100, 100, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex);
+	glBindTexture(GL_TEXTURE_2D, i);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 100, 100, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface.buffer);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // Removes the one-pixel line that appears sometimes around textures.

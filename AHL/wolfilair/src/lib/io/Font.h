@@ -21,11 +21,28 @@ namespace PS3 {
 class Font {
 private:
 	static bool fontInitialized;
+	/**
+	 * Freetype library informations.
+	 */
 	static const CellFontLibrary* library;
+	/**
+	 * Id used to describes the font, must be unique for each font loaded.
+	 */
 	static int uniqueId;
 
+	/**
+	 * The current font.
+	 */
 	CellFont font;
+
+	/**
+	 * Tool that can render a glyph to a surface.
+	 */
 	CellFontRenderer renderer;
+
+	/**
+	 * Surface bearing several glyphs printed on it thanks to the renderer
+	 */
 	CellFontRenderSurface surface;
 
 public:
@@ -34,15 +51,30 @@ public:
 	/**
 	 * Creates a new font object from a TTF font file.
 	 */
-	Font(string path, Console& c);
+	Font(string path);
 	virtual ~Font();
 
-	static void initFont(Console &c);
+	/**
+	 * Initializes the font library
+	 */
+	static void initFont();
+
+	/**
+	 * Shut the font library down
+	 */
 	static void closeFonts();
 
-	void getTextDimension(string str, float& width, float& height);
-	void createRenderer(Console& c);
-	GLuint renderChar(char c, Console& c);
+	/**
+	 * Return the text dimension in pixels for a string.
+	 */
+	void getTextDimensions(string str, float& width, float& height);
+
+	/**
+	 * Renter a char to a texture.
+	 */
+	GLuint renderChar(char c);
+private:
+	void createRenderer();
 };
 
 }

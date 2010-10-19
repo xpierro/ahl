@@ -48,8 +48,9 @@ float camTargetY = 0;
 float camTargetZ = 0;
 
 PNG png1(SYS_DEV_HDD0"/game/PLIB00000/USRDIR/flag.png");
-Font f1(SYS_DEV_HDD0"/game/PLIB00000/USRDIR/font.ttf", c1);
-GLuint i = f1.renderChar('z', c1);
+GLuint j = png1.getTextureId();
+Font f1(SYS_DEV_HDD0"/game/PLIB00000/USRDIR/font.ttf");
+GLuint i = f1.renderChar('z');
 
 int loop() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -126,12 +127,14 @@ int loop() {
 	}
 
 	void drawArrays(float*, float, float, float);
+	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, i);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glTexCoordPointer(2, GL_FLOAT, 0, squareTexCoordFront);
 	drawArrays(squareVerticesFront, 0.2, 0.3, 0.4);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisable(GL_TEXTURE_2D);
 
 	drawArrays(squareVerticesBack, 0.5, 0.3, 0.4);
 	drawArrays(squareVerticesLeft, 0.2, 0.3, 0.5);
