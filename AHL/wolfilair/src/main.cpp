@@ -6,7 +6,9 @@
 #include "lib/io/DebugFont.h"
 #include "lib/network/Socket.h"
 #include "lib/texture/PNG.h"
-#include "lib/io/Font.h"
+#include "lib/font/Font.h"
+#include "lib/font/CustomFont.h"
+#include "lib/texture/FontTexture.h"
 
 #include <fstream>
 #include <psgl/psgl.h>
@@ -49,8 +51,9 @@ float camTargetZ = 0;
 
 PNG png1(SYS_DEV_HDD0"/game/PLIB00000/USRDIR/flag.png");
 GLuint j = png1.getTextureId();
-Font f1(SYS_DEV_HDD0"/game/PLIB00000/USRDIR/font.ttf");
-GLuint i = f1.renderChar('z');
+CustomFont f1(SYS_DEV_HDD0"/game/PLIB00000/USRDIR/font.ttf");
+FontTexture ft(f1, "Hey");
+GLuint i = ft.getTextureId();
 
 int loop() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
