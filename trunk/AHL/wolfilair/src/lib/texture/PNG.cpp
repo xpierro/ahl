@@ -56,6 +56,14 @@ GLuint PNG::getTextureId() {
 	return texId;
 }
 
+int PNG::getWidth() const {
+	return width;
+}
+
+int PNG::getHeight() const {
+	return height;
+}
+
 /**
  * Memory allocation callback - simple one for now
  */

@@ -6,7 +6,7 @@
  */
 
 #include "Console.h"
-#include "../GL.h"
+#include "../graphic/GL.h"
 
 #include <stdarg.h>
 

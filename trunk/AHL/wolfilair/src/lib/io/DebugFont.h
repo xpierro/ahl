@@ -10,7 +10,7 @@
 
 #include <cell/dbgfont.h>
 
-#include "../GL.h"
+#include "../graphic/GL.h"
 
 namespace PS3 {
 

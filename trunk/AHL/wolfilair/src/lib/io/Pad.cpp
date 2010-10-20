@@ -7,7 +7,7 @@
 
 #include "Pad.h"
 
-#include "../GL.h"
+#include "../graphic/GL.h"
 
 #include <cell/pad.h>
 #include <cell/sysmodule.h>

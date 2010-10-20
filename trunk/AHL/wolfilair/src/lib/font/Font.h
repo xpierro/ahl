@@ -11,7 +11,7 @@
 #include <string>
 #include <cell/font.h>
 #include <cell/fontFT.h>
-#include "../GL.h"
+#include "../graphic/GL.h"
 #include "Console.h"
 
 using namespace std;
