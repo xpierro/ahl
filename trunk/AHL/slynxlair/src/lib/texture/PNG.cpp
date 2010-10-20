@@ -6,6 +6,7 @@
  */
 
 #include "PNG.h"
+#include "../2D/GL2D.h"
 
 #include <fstream>
 
@@ -48,10 +49,15 @@ static void pngCallback(const uint64_t status, const uint64_t p, void *u) {
 
 void PNG::initPngDec() {
 	if (!pngInitialized) {
-		GL::init();
 		cellSysmoduleLoadModule(CELL_SYSMODULE_FS);
 		cellSysmoduleLoadModule(CELL_SYSMODULE_PNGDEC);
-		GL::addUserCallback(pngCallback);
+		if(GL2D::libraryStarted)
+		{
+		    GL2D::addUserCallback(pngCallback);
+		}
+		else
+            GL::addUserCallback(pngCallback);
+
 		pngInitialized = true;
 	}
 }

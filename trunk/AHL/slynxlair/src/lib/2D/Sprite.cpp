@@ -31,22 +31,6 @@ int Sprite::getY()
 
 void Sprite::setCoord()
 {
-    /*coord[0] = (pos[0]/(GL::getWidth()/2)-1);//0
-    coord[1] = (pos[1]/(GL::getHeight()/2)-1);//0
-    coord[2] = 0; //TOP LEFT OF SQUARE
-
-    coord[3] = (pos[0]/(GL::getWidth()/2)-1);//0
-    coord[4] = ((pos[1]/(GL::getHeight()/2)-1) - (image.getHeight()/(GL::getHeight()/2)));
-    coord[5] = 0; //BOTTOM LEFT OF SQUARE
-
-    coord[6] = ((pos[0]/(GL::getWidth()/2)-1) + (image.getWidth()/(GL::getWidth()/2)));
-    coord[7]= ((pos[1]/(GL::getHeight()/2)-1) - (image.getHeight()/(GL::getHeight()/2)));
-    coord[8]= 0; //BOTTOM RIGHT OF SQUARE
-
-    coord[9] = ((pos[0]/(GL::getWidth()/2)-1) + (image.getWidth()/(GL::getWidth()/2)));
-    coord[10] = (pos[1]/(GL::getHeight()/2)-1);//0
-    coord[11] = 0; //TOP RIGHT OF SQUARE*/
-
     coord[0] = pos[0];
     coord[1] = (GL::getHeight() - pos[1]);//0
     coord[2] = 0; //TOP LEFT OF SQUARE

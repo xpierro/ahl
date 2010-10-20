@@ -17,11 +17,15 @@ using namespace std;
 namespace PS3 {
 
 class GL {
-private:
+protected:
 	static unsigned int width;
 	static unsigned int height;
+
 public:
 	static const int MAIN_LOOP_STOP = 0;
+	static bool systemExited;
+	static bool libraryStarted;
+	static void systemCallback(const uint64_t, const uint64_t, void*);
 
 	GL();
 	virtual ~GL();
@@ -51,14 +55,10 @@ public:
 	static unsigned int getWidth();
 	static unsigned int getHeight();
 
-private:
+protected:
 	static list<void(*)(const uint64_t, const uint64_t, void*)> *callbacks;
 	static PSGLdevice *device;
 	static PSGLcontext *context;
-
-	static bool systemExited;
-	static bool libraryStarted;
-	static void systemCallback(const uint64_t, const uint64_t, void*);
 };
 
 }
