@@ -106,7 +106,7 @@ void GL::init() {
 		glClearColor(0.f, 0.f, 0.f, 1.f);
 		// Doesn't display back-facing polygons
 		// (counter clock wise vertices)
-		glDisable(GL_CULL_FACE);
+		glEnable(GL_CULL_FACE);
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_TEXTURE_2D);
@@ -121,6 +121,10 @@ void GL::init() {
 		cellSysutilRegisterCallback(0, systemCallback, NULL);
 		libraryStarted = true;
 	}
+}
+
+void GL::executeBeforeLoop(void (*f)(void)) {
+	f();
 }
 
 void GL::executeMainLoop(int (*loop)()) {
@@ -140,8 +144,8 @@ void GL::close() {
 	psglExit();
 }
 
-void GL::addUserCallback(void (*callback)(const uint64_t, const uint64_t, void*)) {
-	callbacks->push_back(callback);
+void GL::addUserCallback(void (*cback)(const uint64_t, const uint64_t, void*)) {
+	callbacks->push_back(cback);
 }
 
 unsigned int GL::getWidth() {

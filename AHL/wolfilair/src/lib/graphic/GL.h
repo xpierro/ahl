@@ -17,7 +17,7 @@ using namespace std;
 namespace PS3 {
 
 class GL {
-private:
+protected:
 	static unsigned int width;
 	static unsigned int height;
 public:
@@ -27,27 +27,31 @@ public:
 	virtual ~GL();
 
 	/**
-	 * Initialise la librairie graphique de la PS3
+	 * Initialises the ps3 graphic context
 	 */
 	static void init();
 
 	/**
-	 * Execute la fonction passée en argument en boucle tant que le retour de la
-	 * fonction est différent de MAIN_LOOP_STOP
+	 * Executes the given parameter before the loop.
 	 */
-	static void executeMainLoop(int (*)(void));
+	virtual void executeBeforeLoop(void (*)(void));
 
 	/**
-	 * Referme la librairie graphique proprement.
+	 * Executes the given parameter in loop as long as the return value isn't
+	 * MAIN_LOOP_STOP
 	 */
-	static void close();
+	virtual void executeMainLoop(int (*)(void));
 
 	/**
-	 * Ajoute des fonctions à executer à la réception d'une interruption
+	 * Quits the implementation cleanly.
 	 */
-	static void addUserCallback(void (*)(const uint64_t,
-										 const uint64_t,
-										 void*));
+	virtual void close();
+
+	/**
+	 * Adds callback functions launched when the system callback is executed
+	 */
+	static void addUserCallback(void(*)(const uint64_t, const uint64_t, void*));
+
 	static unsigned int getWidth();
 	static unsigned int getHeight();
 

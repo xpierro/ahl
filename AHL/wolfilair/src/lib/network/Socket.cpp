@@ -7,7 +7,7 @@
 
 #include "Socket.h"
 
-#include "../GL.h"
+#include "../graphic/GL.h"
 
 #include <cell/sysmodule.h>
 

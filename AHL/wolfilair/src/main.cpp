@@ -1,4 +1,4 @@
-#include "lib/GL.h"
+#include "lib/graphic/GL3D.h"
 #include "lib/io/Pad.h"
 #include "lib/tools/dialog/Dialog.h"
 #include "lib/tools/dialog/InformationDialog.h"
@@ -164,7 +164,8 @@ void drawArrays(float *a, float r, float g, float b) {
 }
 
 int main() {
-	PS3::GL::executeMainLoop(loop);
+	GL* a = new GL3D();
+	a->executeMainLoop(loop);
 	return 0;
 }
 

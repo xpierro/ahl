@@ -8,7 +8,7 @@
 #ifndef PNG_H_
 #define PNG_H_
 
-#include "../GL.h"
+#include "../graphic/GL.h"
 
 #include <cell/codec.h>
 #include <cell/sysmodule.h>
@@ -45,6 +45,9 @@ public:
 	 * Load the png if it isn't loaded already and returns the texture id
 	 */
 	GLuint getTextureId();
+
+	int getWidth() const;
+	int getHeight() const;
 
 private:
 	void loadFromDisc();

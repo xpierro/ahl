@@ -42,7 +42,7 @@ void FontTexture::createSurface() {
 	CellFontImageTransInfo transInfo;
 
 	int currentX = 0;
-	for (int index = 0; index < displayString.length(); index++) {
+	for (unsigned int index = 0; index < displayString.length(); index++) {
 		cellFontRenderCharGlyphImage(font->getFontDescriptor(),
 									 displayString.at(index),
 									 &surface, 0, 0, &metrics, &transInfo);

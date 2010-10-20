@@ -3,8 +3,11 @@
 CELL_MK_DIR = $(CELL_SDK)/samples/mk
 include $(CELL_MK_DIR)/sdk.makedef.mk
 
-PPU_SRCS = src/main.cpp src/lib/tools/Thread.cpp\
-           src/lib/GL.cpp src/lib/shape/Shape.cpp\
+PPU_SRCS = src/lib/graphic/GL.cpp src/lib/graphic/GL3D.cpp\
+	 src/main.cpp src/lib/tools/Thread.cpp\
+	 src/lib/2D/Sprite.cpp\
+	 src/lib/graphic/GL2D.cpp\
+           src/lib/shape/Shape.cpp\
            src/lib/Vertex3D.cpp src/lib/io/Pad.cpp\
            src/lib/tools/dialog/Dialog.cpp\
            src/lib/tools/dialog/ErrorDialog.cpp\
