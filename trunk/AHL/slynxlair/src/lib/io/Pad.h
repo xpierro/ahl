@@ -78,17 +78,19 @@ private:
 	// Retient toutes les instances de Pad
 	static list<Pad*>* pads;
 
-	/**
-	 * Relit les informations du pad, à faire à chaque tour de boucle, avant
-	 * de demander des infos sur les boutons appuyés et leur puissance.
-	 */
-	void pollPadData();
+
 public:
 	/**
 	 * @param padId L'identifiant du pad à enregistrer (une instance par pad)
 	 */
 	Pad(int padId);
 	virtual ~Pad();
+
+	/**
+	 * Relit les informations du pad, à faire à chaque tour de boucle, avant
+	 * de demander des infos sur les boutons appuyés et leur puissance.
+	 */
+	void pollPadData();
 
 	int getPadNumber() const;
 

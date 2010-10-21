@@ -6,13 +6,8 @@ include $(CELL_MK_DIR)/sdk.makedef.mk
 PPU_SRCS = src/main.cpp src/lib/tools/Thread.cpp\
            src/lib/GL.cpp src/lib/shape/Shape.cpp\
            src/lib/Vertex3D.cpp src/lib/io/Pad.cpp\
-           src/lib/tools/dialog/Dialog.cpp\
-           src/lib/tools/dialog/ErrorDialog.cpp\
-           src/lib/tools/dialog/InformationDialog.cpp\
-           src/lib/io/Console.cpp\
-           src/lib/io/DebugFont.cpp src/lib/network/Socket.cpp\
            src/lib/texture/PNG.cpp\
-           src/lib/2D/Sprite.cpp\
+           src/lib/2D/Sprite.cpp src/lib/2D/SpriteA.cpp\
            src/lib/2D/GL2D.cpp
 PPU_TARGET = PS3Library.elf
 

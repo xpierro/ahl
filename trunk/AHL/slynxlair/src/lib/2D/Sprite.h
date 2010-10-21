@@ -2,32 +2,31 @@
 #define SPRITE_H_
 #include "../texture/PNG.h"
 
-const float allImage[8] = {0., 1.,//Top Left
-                          0., 0.,//Bottom Left
-                          1., 0.,//Bottom Right
-                          1., 1.};//Top Right
-
 namespace PS3 {
 
-class Sprite{
-private:
+/*
+*  Sprite houses a 2D storage for images (Currently only PNG)
+*/
 
-    int pos[2];
-    GLfloat coord[12];
+class Sprite{
+protected:
+
+    int pos[2]; /* (x,y) coordinate system. Uses 0,0 for top left of the image and sprite instead of OpenGL's bottom left */
+    GLfloat coord[12]; /* the array to hold the coordinates of the square to attach the image to */
 
 public:
-    PNG image;
+    PNG image; /* The image associated with the Sprite */
     Sprite();
     Sprite(string path);
 
 
-    void setX(int x);
-    void setY(int x);
-    int getX();
-    int getY();
+    void setX(int x); /* set pos[0] */
+    void setY(int x); /* set pos[1] */
+    int getX(); /* return pos[0]*/
+    int getY(); /* return pos[1] */
 
-    void setCoord();
-    float* getCoord();
+    virtual void setCoord(); /* converts pos into screen coordinates */
+    float* getCoord(); /* returns coord*/
 
 };
 }

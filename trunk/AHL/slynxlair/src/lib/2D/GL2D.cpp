@@ -9,6 +9,13 @@
 #include <psgl/psglu.h>
 #include "GL2D.h"
 #include "Sprite.h"
+#include "SpriteA.h"
+
+//allImage holds the texture coords to draw the entire image
+const float allImage[8] = {0., 1.,//Top Left
+                          0., 0.,//Bottom Left
+                          1., 0.,//Bottom Right
+                          1., 1.};//Top Right
 
 namespace PS3{
 
@@ -40,6 +47,24 @@ namespace PS3{
         glDisableClientState(GL_VERTEX_ARRAY);
     }
 
+    void GL2D::drawSprite(SpriteA &sprite)
+    {
+        glBindTexture(GL_TEXTURE_2D, sprite.frame.at(sprite.getFrame()).getTextureId());
+
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glVertexPointer(3, GL_FLOAT, 0, sprite.getCoord());
+        glTexCoordPointer(2, GL_FLOAT, 0, allImage);
+        glDrawArrays(GL_QUADS, 0, 4);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        glDisableClientState(GL_VERTEX_ARRAY);
+
+        if(!sprite.isPaused())
+        {
+            sprite.increment();
+        }
+    }
+
     void GL2D::scrollX(float amount)
     {
         leftBound += amount;
@@ -47,8 +72,8 @@ namespace PS3{
     }
     void GL2D::scrollY(float amount)
     {
-        bottomBound += amount;
-        topBound += amount;
+        bottomBound -= amount;
+        topBound -= amount;
     }
 
     void GL2D::setBoundaries(void)
