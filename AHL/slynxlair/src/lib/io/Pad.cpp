@@ -8,6 +8,7 @@
 #include "Pad.h"
 
 #include "../GL.h"
+#include "../2D/GL2D.h"
 
 #include <cell/pad.h>
 #include <cell/sysmodule.h>
@@ -106,7 +107,15 @@ void Pad::initPad() {
 		}
 		// On enregistre un callback pour fermer la librairie en cas
 		// d'interruption du programme.
-		GL::addUserCallback(padCallback);
+		if(GL2D::libraryStarted)
+		{
+		    GL2D::addUserCallback(padCallback);
+		}
+		else
+		{
+		    GL::addUserCallback(padCallback);
+		}
+
 	}
 }
 
@@ -150,7 +159,7 @@ float Pad::getAxisPosition(Stick s, Axis a) {
 	case Y_AXIS: stickIndex += 1;
 	default: break;
 	}
-	if (padData.button[stickIndex] > 0x70 && padData.button[stickIndex] < 0x90){
+	if ((padData.button[stickIndex] > 0x0078) && (padData.button[stickIndex] < 0x0088)){
 		return 0;
 	}
 	return (padData.button[stickIndex] - 128) / 128;

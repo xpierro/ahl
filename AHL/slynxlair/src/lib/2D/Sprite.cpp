@@ -16,9 +16,9 @@ void Sprite::setX(int x)
 {
     pos[0] = x;
 }
-void Sprite::setY(int x)
+void Sprite::setY(int y)
 {
-    pos[1] = x;
+    pos[1] = y;
 }
 int Sprite::getX()
 {
